@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My IPTV</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+header{
+    background:#e60000;
+    padding:15px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:900px;
+    margin:20px auto;
+}
+
+video{
+    width:100%;
+    border-radius:10px;
+    background:black;
+}
+
+button{
+    margin-top:15px;
+    padding:12px 20px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    background:#e60000;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>📺 My IPTV Live</header>
+
+<div class="container">
+    <video id="video" controls autoplay></video>
+    <br>
+    <button onclick="playStream()">Play</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<script>
+function playStream(){
+    const video = document.getElementById('video');
+    const url = "https://tvsen7.aynaott.com/tsportsfhd/index.m3u8";
+
+    if(Hls.isSupported()){
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+    } else {
+        video.src = url;
+    }
+}
+
+playStream();
+</script>
+
+</body>
+</html>
