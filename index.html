@@ -3,26 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPTV Pro</title>
+<title>Signature IPTV Live</title>
 
 <style>
 body{
     margin:0;
-    background:#0b0b0b;
+    background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
     color:white;
     font-family:Arial;
 }
 
-/* Header */
+/* HEADER */
 header{
-    background:#e50914;
     padding:15px;
     text-align:center;
-    font-size:22px;
+    font-size:24px;
     font-weight:bold;
+    background:linear-gradient(90deg,#e50914,#111);
 }
 
-/* Video top */
+/* smooth title animation */
+.sig-title{
+    display:inline-block;
+    animation: smooth 2.5s ease-in-out infinite;
+}
+
+@keyframes smooth{
+    0%{transform:translateY(0); opacity:0.9;}
+    50%{transform:translateY(-2px); opacity:1;}
+    100%{transform:translateY(0); opacity:0.9;}
+}
+
+/* PLAYER */
 .player{
     width:100%;
     aspect-ratio:16/9;
@@ -34,43 +46,67 @@ video{
     height:100%;
 }
 
-/* Channel list bottom */
-.channels{
-    height:calc(100vh - 16px - 56px - 56vw);
-    overflow-y:auto;
-    background:#141414;
+/* SEARCH */
+.search-container{
     padding:10px;
+    text-align:center;
 }
 
-/* channel item */
-.channel{
-    background:#1f1f1f;
-    margin-bottom:8px;
+.search-container input{
+    width:90%;
+    max-width:500px;
     padding:12px;
-    border-radius:8px;
+    border:none;
+    border-radius:25px;
+    outline:none;
+    background:#2a2a2a;
+    color:white;
+    transition:0.3s;
+}
+
+.search-container input:focus{
+    transform:scale(1.03);
+    box-shadow:0 0 12px rgba(229,9,20,0.5);
+}
+
+/* NETFLIX GRID */
+.channels{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:12px;
+    padding:15px;
+}
+
+/* CARD */
+.channel{
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
     cursor:pointer;
+    transition:0.25s;
+    box-shadow:0 5px 15px rgba(0,0,0,0.4);
 }
 
 .channel:hover{
+    transform:scale(1.08);
     background:#e50914;
-}
-
-/* mobile fix */
-@media(max-width:768px){
-    .channels{
-        height:auto;
-        max-height:40vh;
-    }
 }
 </style>
 </head>
 
 <body>
 
-<header>📺 IPTV </header>
+<header>
+    <span class="sig-title">🎬 Signature IPTV Live</span>
+</header>
 
 <div class="player">
-    <video id="video" controls autoplay></video>
+    <video id="video" controls autoplay muted playsinline></video>
+</div>
+
+<div class="search-container">
+    <input type="text" id="search" placeholder="Search channel...">
 </div>
 
 <div class="channels" id="list"></div>
@@ -79,13 +115,14 @@ video{
 
 <script>
 
-const video = document.getElementById('video');
+const video = document.getElementById("video");
 let hls;
 
-// 📺 Channels
+/* CHANNEL LIST */
 const channels = [
   {name:"Somoy TV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/1702-audio_113322_eng=113200-video=1692000.m3u8"},
   {name:"Channel 24", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8"},
+  {name:"T Sports", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
   {name:"Tom & Jerry", url:"https://live20.bozztv.com/giatvplayout7/giatv-208314/playlist.m3u8"},
   {name:"Independence TV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8"},
   {name:"BTV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8"},
@@ -93,29 +130,50 @@ const channels = [
 ];
 
 function play(url){
-    if(hls){ hls.destroy(); }
 
-    if(Hls.isSupported()){
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-    } else {
-        video.src = url;
-    }
+    if(hls) hls.destroy();
+
+    hls = new Hls({
+        enableWorker:true,
+        lowLatencyMode:true,
+        backBufferLength:30
+    });
+
+    hls.loadSource(url);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
+        video.play().catch(()=>{});
+    });
 }
 
-// render list
-const list = document.getElementById("list");
+/* render */
+function render(data){
+    const list = document.getElementById("list");
+    list.innerHTML = "";
 
-channels.forEach(ch=>{
-    let div = document.createElement("div");
-    div.className = "channel";
-    div.innerText = "📺 " + ch.name;
-    div.onclick = ()=> play(ch.url);
-    list.appendChild(div);
+    data.forEach(ch=>{
+        let div = document.createElement("div");
+        div.className = "channel";
+        div.innerHTML = "📺 " + ch.name;
+        div.onclick = ()=> play(ch.url);
+        list.appendChild(div);
+    });
+}
+
+/* search */
+document.getElementById("search").addEventListener("input",(e)=>{
+    let val = e.target.value.toLowerCase();
+
+    let filtered = channels.filter(ch =>
+        ch.name.toLowerCase().includes(val)
+    );
+
+    render(filtered);
 });
 
-// auto play first
+/* init */
+render(channels);
 play(channels[0].url);
 
 </script>
