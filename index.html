@@ -8,61 +8,100 @@
 <style>
 body{
     margin:0;
-    background:#111;
+    background:#0f0f0f;
     color:white;
     font-family:Arial;
-    text-align:center;
 }
 
 header{
     background:#e60000;
     padding:15px;
-    font-size:22px;
+    text-align:center;
+    font-size:20px;
     font-weight:bold;
 }
 
 .container{
-    max-width:900px;
-    margin:20px auto;
+    display:flex;
+}
+
+.channels{
+    width:35%;
+    min-width:220px;
+    background:#1c1c1c;
+    height:90vh;
+    overflow:auto;
+}
+
+.channels div{
+    padding:12px;
+    border-bottom:1px solid #333;
+    cursor:pointer;
+}
+
+.channels div:hover{
+    background:#e60000;
+}
+
+.player{
+    flex:1;
+    padding:10px;
 }
 
 video{
     width:100%;
-    border-radius:10px;
+    height:80vh;
     background:black;
 }
 
 button{
-    margin-top:15px;
-    padding:12px 20px;
-    font-size:16px;
-    border:none;
-    border-radius:8px;
+    margin-top:10px;
+    padding:10px;
     background:#e60000;
+    border:none;
     color:white;
+    border-radius:5px;
 }
 </style>
 </head>
 
 <body>
 
-<header>📺 My IPTV Live</header>
+<header>📺 My IPTV Channels</header>
 
 <div class="container">
+
+<div class="channels" id="list"></div>
+
+<div class="player">
     <video id="video" controls autoplay></video>
-    <br>
-    <button onclick="playStream()">Play</button>
+</div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
-function playStream(){
-    const video = document.getElementById('video');
-    const url = "https://tvsen7.aynaott.com/tsportsfhd/index.m3u8";
+
+const video = document.getElementById('video');
+let hls;
+
+// 👉 তোমার সব channels এখানে
+const channels = [
+  {name:"Channel 1", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/1702-audio_113322_eng=113200-video=1692000.m3u8"},
+  {name:"Channel 2", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8"},
+  {name:"T Sports HD", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
+  {name:"Channel 4", url:"https://live20.bozztv.com/giatvplayout7/giatv-208314/playlist.m3u8"},
+  {name:"Channel 5", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8"},
+  {name:"Channel 6", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8"},
+  {name:"Ekhon TV", url:"https://bldcmprod-cdn.toffeelive.com/cdn/live/ekhon_tv/playlist.m3u8"}
+];
+
+function play(url){
+    if(hls){ hls.destroy(); }
 
     if(Hls.isSupported()){
-        const hls = new Hls();
+        hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
     } else {
@@ -70,7 +109,19 @@ function playStream(){
     }
 }
 
-playStream();
+// list show
+const list = document.getElementById("list");
+
+channels.forEach(ch=>{
+    let div = document.createElement("div");
+    div.innerText = ch.name;
+    div.onclick = ()=> play(ch.url);
+    list.appendChild(div);
+});
+
+// auto play first channel
+play(channels[0].url);
+
 </script>
 
 </body>
