@@ -8,7 +8,7 @@
 <style>
 body{
     margin:0;
-    background: radial-gradient(circle at top, #1a1a1a, #0b0b0b);
+    background:#0b0b0b;
     color:white;
     font-family:Arial;
 }
@@ -17,28 +17,20 @@ body{
 header{
     padding:15px;
     text-align:center;
-    font-size:24px;
+    font-size:22px;
     font-weight:bold;
     background:linear-gradient(90deg,#e50914,#111);
 }
 
-/* smooth title animation */
-.sig-title{
-    display:inline-block;
-    animation: smooth 2.5s ease-in-out infinite;
-}
-
-@keyframes smooth{
-    0%{transform:translateY(0); opacity:0.9;}
-    50%{transform:translateY(-2px); opacity:1;}
-    100%{transform:translateY(0); opacity:0.9;}
-}
-
-/* PLAYER */
+/* PLAYER FIXED TOP */
 .player{
-    width:100%;
-    aspect-ratio:16/9;
-    background:black;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: black;
+    box-shadow:0 10px 20px rgba(0,0,0,0.6);
 }
 
 video{
@@ -46,63 +38,74 @@ video{
     height:100%;
 }
 
+/* CATEGORY */
+.categories{
+    display:flex;
+    gap:10px;
+    padding:10px;
+    overflow-x:auto;
+    background:#141414;
+}
+
+.cat{
+    padding:8px 12px;
+    background:#2a2a2a;
+    border-radius:20px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
 /* SEARCH */
 .search-container{
     padding:10px;
-    text-align:center;
 }
 
 .search-container input{
-    width:90%;
-    max-width:500px;
-    padding:12px;
+    width:100%;
+    padding:10px;
     border:none;
-    border-radius:25px;
-    outline:none;
+    border-radius:10px;
     background:#2a2a2a;
     color:white;
-    transition:0.3s;
 }
 
-.search-container input:focus{
-    transform:scale(1.03);
-    box-shadow:0 0 12px rgba(229,9,20,0.5);
-}
-
-/* NETFLIX GRID */
+/* GRID */
 .channels{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-    gap:12px;
-    padding:15px;
+    grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+    gap:10px;
+    padding:10px;
 }
 
 /* CARD */
 .channel{
     background:#1a1a1a;
-    border-radius:12px;
-    padding:15px;
+    padding:12px;
+    border-radius:10px;
     text-align:center;
     cursor:pointer;
-    transition:0.25s;
-    box-shadow:0 5px 15px rgba(0,0,0,0.4);
+    transition:0.2s;
 }
 
 .channel:hover{
-    transform:scale(1.08);
     background:#e50914;
+    transform:scale(1.05);
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <span class="sig-title">🎬 Signature IPTV Live</span>
-</header>
+<header>🎬 Signature IPTV Live</header>
 
 <div class="player">
     <video id="video" controls autoplay muted playsinline></video>
+</div>
+
+<div class="categories">
+    <div class="cat" onclick="show('ALL')">ALL</div>
+    <div class="cat" onclick="show('BD')">BD</div>
+    <div class="cat" onclick="show('MAIN')">MAIN</div>
 </div>
 
 <div class="search-container">
@@ -118,17 +121,34 @@ video{
 const video = document.getElementById("video");
 let hls;
 
-/* CHANNEL LIST */
+/* CHANNELS */
 const channels = [
-  {name:"Somoy TV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/1702-audio_113322_eng=113200-video=1692000.m3u8"},
-  {name:"Channel 24", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8"},
-  {name:"T Sports", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
-  {name:"Tom & Jerry", url:"https://live20.bozztv.com/giatvplayout7/giatv-208314/playlist.m3u8"},
-  {name:"Independence TV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8"},
-  {name:"BTV", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8"},
-  {name:"Ekhon TV", url:"https://bldcmprod-cdn.toffeelive.com/cdn/live/ekhon_tv/playlist.m3u8"}
+
+/* BD */
+{name:"Somoy TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8"},
+{name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8"},
+{name:"Channel I", group:"BD", url:"https://tvsen6.aynaott.com/channeli/index.m3u8"},
+{name:"Ekushey TV", group:"BD", url:"https://ekusheyserver.com/etvlivesn.m3u8"},
+{name:"Jamuna TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/1701-audio_113312_eng=113200-video=1692000.m3u8"},
+{name:"Ekattor TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/1705-audio_113352_eng=113200-video=1692000.m3u8"},
+{name:"Independent TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/1704-audio_113342_eng=113200-video=1692000.m3u8"},
+{name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8"},
+{name:"NTV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/1716-audio_113462_eng=113200-video=1692000.m3u8"},
+{name:"Dipto TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1711/output/1711-audio_113412_eng=113200-video=1692000.m3u8"},
+
+/* MAIN (BTV SEPARATE) */
+{name:"T Sports", group:"MAIN", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
+
+{name:"BTV (Main Feed)", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709-audio_113392_eng=113200-video=1692000.m3u8"},
+
+{name:"BTV NEWS (Separate Feed)", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8"},
+
+/* IND */
+{name:"Star Plus", group:"IND", url:"https://example.com/ind1.m3u8"},
+{name:"Sony TV", group:"IND", url:"https://example.com/ind2.m3u8"}
 ];
 
+/* PLAY */
 function play(url){
 
     if(hls) hls.destroy();
@@ -147,7 +167,7 @@ function play(url){
     });
 }
 
-/* render */
+/* RENDER */
 function render(data){
     const list = document.getElementById("list");
     list.innerHTML = "";
@@ -161,7 +181,19 @@ function render(data){
     });
 }
 
-/* search */
+/* FILTER */
+function show(group){
+
+    if(group === "ALL"){
+        render(channels);
+        return;
+    }
+
+    let filtered = channels.filter(ch => ch.group === group);
+    render(filtered);
+}
+
+/* SEARCH */
 document.getElementById("search").addEventListener("input",(e)=>{
     let val = e.target.value.toLowerCase();
 
@@ -172,8 +204,8 @@ document.getElementById("search").addEventListener("input",(e)=>{
     render(filtered);
 });
 
-/* init */
-render(channels);
+/* INIT */
+show("ALL");
 play(channels[0].url);
 
 </script>
