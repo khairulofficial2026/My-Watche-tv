@@ -21,38 +21,37 @@ header{
     font-weight:bold;
 }
 
-/* 16:9 player */
+.container{
+    display:flex;
+}
+
+.channels{
+    width:35%;
+    min-width:220px;
+    background:#1c1c1c;
+    height:90vh;
+    overflow:auto;
+}
+
+.channels div{
+    padding:12px;
+    border-bottom:1px solid #333;
+    cursor:pointer;
+}
+
+.channels div:hover{
+    background:#e60000;
+}
+
 .player{
-    width:95%;
-    max-width:900px;
-    margin:15px auto;
-    aspect-ratio:16/9;
-    background:black;
+    flex:1;
+    padding:10px;
 }
 
 video{
     width:100%;
-    height:100%;
-}
-
-/* buttons */
-.controls{
-    text-align:center;
-    margin:10px;
-}
-
-button{
-    margin:5px;
-    padding:10px 15px;
-    background:#e60000;
-    color:white;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:0.8;
+    aspect-ratio:16/9;
+    background:black;
 }
 </style>
 </head>
@@ -61,18 +60,14 @@ button:hover{
 
 <header>📺 My IPTV Player</header>
 
+<div class="container">
+
+<div class="channels" id="list"></div>
+
 <div class="player">
-    <video id="video" controls></video>
+    <video id="video" controls autoplay></video>
 </div>
 
-<div class="controls">
-    <button onclick="playChannel(0)">Somoy tv</button>
-    <button onclick="playChannel(1)">Channel 24</button>
-    <button onclick="playChannel(2)">T Sports</button>
-    <button onclick="playChannel(3)">Channel 4</button>
-    <button onclick="playChannel(4)">Channel 5</button>
-    <button onclick="playChannel(5)">Btv</button>
-    <button onclick="playChannel(6)">Ekhon TV</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -82,24 +77,19 @@ button:hover{
 const video = document.getElementById('video');
 let hls;
 
-// 👉 তোমার সব channels
+// 📺 Updated Channels
 const channels = [
-  "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/1702-audio_113322_eng=113200-video=1692000.m3u8",
-  "https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8",
-  "https://tvsen7.aynaott.com/tsportsfhd/index.m3u8",
-  "https://live20.bozztv.com/giatvplayout7/giatv-208314/playlist.m3u8",
-  "https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8",
-  "https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8",
-  "https://bldcmprod-cdn.toffeelive.com/cdn/live/ekhon_tv/playlist.m3u8"
+  { name: "Somoy TV", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/1702-audio_113322_eng=113200-video=1692000.m3u8" },
+  { name: "Channel 24", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8" },
+  { name: "Tom & Jerry", url: "https://live20.bozztv.com/giatvplayout7/giatv-208314/playlist.m3u8" },
+  { name: "Independence TV", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/index.m3u8" },
+  { name: "BTV", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8" },
+  { name: "Ekhon TV", url: "https://bldcmprod-cdn.toffeelive.com/cdn/live/ekhon_tv/playlist.m3u8" }
 ];
 
-function playChannel(index){
-
-    if(hls){
-        hls.destroy();
-    }
-
-    const url = channels[index];
+// play function
+function play(url){
+    if(hls){ hls.destroy(); }
 
     if(Hls.isSupported()){
         hls = new Hls();
@@ -108,9 +98,25 @@ function playChannel(index){
     } else {
         video.src = url;
     }
-
 }
 
+// auto create list
+const list = document.getElementById("list");
+
+channels.forEach(ch=>{
+    let div = document.createElement("div");
+    div.innerText = ch.name;
+    div.onclick = ()=> play(ch.url);
+    list.appendChild(div);
+});
+
+// auto play first channel
+play(channels[0].url);
+
+</script>
+
+</body>
+</html>
 // auto play first channel
 playChannel(0);
 
