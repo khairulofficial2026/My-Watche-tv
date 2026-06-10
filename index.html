@@ -201,3 +201,32 @@ function render(data){
 
 /* FILTER */
 function show(group){
+
+    if(group === "ALL"){
+        render(channels);
+        return;
+    }
+
+    let filtered = channels.filter(ch => ch.group === group);
+    render(filtered);
+}
+
+/* SEARCH */
+document.getElementById("search").addEventListener("input",(e)=>{
+    let val = e.target.value.toLowerCase();
+
+    let filtered = channels.filter(ch =>
+        ch.name.toLowerCase().includes(val)
+    );
+
+    render(filtered);
+});
+
+/* INIT */
+show("ALL");
+play(channels[0].url);
+
+</script>
+
+</body>
+</html>
