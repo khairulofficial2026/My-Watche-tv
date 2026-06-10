@@ -43,7 +43,7 @@ video{
     padding-top:56.25vw;
 }
 
-/* CATEGORY */
+/* CATEGORY BAR */
 .categories{
     display:flex;
     gap:8px;
@@ -73,6 +73,7 @@ video{
     border-radius:10px;
     background:#2a2a2a;
     color:white;
+    outline:none;
 }
 
 /* CHANNEL GRID */
@@ -83,7 +84,7 @@ video{
     padding:10px;
 }
 
-/* CARD */
+/* CHANNEL CARD */
 .channel{
     background:#1a1a1a;
     padding:12px;
@@ -110,6 +111,7 @@ video{
 
 <div class="container">
 
+<!-- CATEGORY -->
 <div class="categories">
     <div class="cat" onclick="show('ALL')">ALL</div>
     <div class="cat" onclick="show('MAIN')">MAIN</div>
@@ -118,10 +120,12 @@ video{
     <div class="cat" onclick="show('FIFA')">🏆 FIFA WC</div>
 </div>
 
+<!-- SEARCH -->
 <div class="search-container">
     <input type="text" id="search" placeholder="Search channel...">
 </div>
 
+<!-- CHANNEL LIST -->
 <div class="channels" id="list"></div>
 
 </div>
@@ -133,7 +137,7 @@ video{
 const video = document.getElementById("video");
 let hls;
 
-/* FAST HLS PLAYER */
+/* FAST PLAYER */
 function play(url){
 
     if(!url) return;
@@ -141,12 +145,12 @@ function play(url){
     if(hls) hls.destroy();
 
     hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        liveSyncDuration: 1,
-        liveMaxLatencyDuration: 3,
-        maxBufferLength: 10,
-        backBufferLength: 0
+        enableWorker:true,
+        lowLatencyMode:true,
+        liveSyncDuration:1,
+        liveMaxLatencyDuration:3,
+        maxBufferLength:10,
+        backBufferLength:0
     });
 
     hls.loadSource(url);
@@ -157,7 +161,7 @@ function play(url){
     });
 }
 
-/* SOUND FIX (tap to unmute) */
+/* SOUND ENABLE ON CLICK */
 video.addEventListener("click", ()=>{
     video.muted = false;
 });
@@ -166,7 +170,7 @@ video.addEventListener("click", ()=>{
 const channels = [
 
 /* MAIN */
-{name:"T Sports", group:"FIFA", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
+{name:"T Sports", group:"MAIN", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
 {name:"BTV National", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8"},
 {name:"BTV News", group:"MAIN", url:"https://tvsen6.aynaott.com/BTVNews/index.m3u8"},
 
@@ -181,8 +185,10 @@ const channels = [
 {name:"Star Plus", group:"IND", url:""},
 {name:"Sony TV", group:"IND", url:""},
 
-/* FIFA */
+/* FIFA WC */
+{name:"T Sports HD", group:"FIFA", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
 {name:"Gazi TV", group:"FIFA", url:"https://tvsen5.aynaott.com/Ravc7gPCZpxk/index.m3u8"}
+
 ];
 
 /* RENDER */
