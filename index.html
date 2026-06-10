@@ -15,22 +15,22 @@ body{
 
 /* HEADER */
 header{
-    padding:15px;
+    padding:12px;
     text-align:center;
-    font-size:22px;
+    font-size:20px;
     font-weight:bold;
     background:linear-gradient(90deg,#e50914,#111);
 }
 
-/* PLAYER FIXED TOP */
+/* FIXED PLAYER */
 .player{
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: black;
-    box-shadow:0 10px 20px rgba(0,0,0,0.6);
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    aspect-ratio:16/9;
+    background:black;
+    z-index:9999;
 }
 
 video{
@@ -38,21 +38,27 @@ video{
     height:100%;
 }
 
+/* PUSH CONTENT */
+.container{
+    padding-top:56.25vw;
+}
+
 /* CATEGORY */
 .categories{
     display:flex;
-    gap:10px;
-    padding:10px;
+    gap:8px;
+    padding:8px;
     overflow-x:auto;
     background:#141414;
 }
 
 .cat{
-    padding:8px 12px;
+    padding:6px 10px;
     background:#2a2a2a;
     border-radius:20px;
     cursor:pointer;
     white-space:nowrap;
+    font-size:13px;
 }
 
 /* SEARCH */
@@ -69,11 +75,11 @@ video{
     color:white;
 }
 
-/* GRID */
+/* CHANNEL GRID */
 .channels{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
-    gap:10px;
+    grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+    gap:8px;
     padding:10px;
 }
 
@@ -99,13 +105,17 @@ video{
 <header>🎬 Signature IPTV Live</header>
 
 <div class="player">
-    <video id="video" controls autoplay muted playsinline></video>
+    <video id="video" controls autoplay playsinline></video>
 </div>
+
+<div class="container">
 
 <div class="categories">
     <div class="cat" onclick="show('ALL')">ALL</div>
-    <div class="cat" onclick="show('BD')">BD</div>
     <div class="cat" onclick="show('MAIN')">MAIN</div>
+    <div class="cat" onclick="show('BD')">BD</div>
+    <div class="cat" onclick="show('IND')">IND</div>
+    <div class="cat" onclick="show('FIFA')">🏆 FIFA WC</div>
 </div>
 
 <div class="search-container">
@@ -114,6 +124,8 @@ video{
 
 <div class="channels" id="list"></div>
 
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <script>
@@ -121,42 +133,20 @@ video{
 const video = document.getElementById("video");
 let hls;
 
-/* CHANNELS */
-const channels = [
-
-/* BD */
-{name:"Somoy TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8"},
-{name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8"},
-{name:"Channel I", group:"BD", url:"https://tvsen6.aynaott.com/channeli/index.m3u8"},
-{name:"Ekushey TV", group:"BD", url:"https://ekusheyserver.com/etvlivesn.m3u8"},
-{name:"Jamuna TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1701/output/1701-audio_113312_eng=113200-video=1692000.m3u8"},
-{name:"Ekattor TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/1705-audio_113352_eng=113200-video=1692000.m3u8"},
-{name:"Independent TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/1704-audio_113342_eng=113200-video=1692000.m3u8"},
-{name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/1703-audio_113332_eng=113200-video=1692000.m3u8"},
-{name:"NTV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/1716-audio_113462_eng=113200-video=1692000.m3u8"},
-{name:"Dipto TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1711/output/1711-audio_113412_eng=113200-video=1692000.m3u8"},
-
-/* MAIN (BTV SEPARATE) */
-{name:"T Sports", group:"MAIN", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
-
-{name:"BTV (Main Feed)", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709-audio_113392_eng=113200-video=1692000.m3u8"},
-
-{name:"BTV NEWS (Separate Feed)", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/index.m3u8"},
-
-/* IND */
-{name:"Star Plus", group:"IND", url:"https://example.com/ind1.m3u8"},
-{name:"Sony TV", group:"IND", url:"https://example.com/ind2.m3u8"}
-];
-
-/* PLAY */
+/* FAST HLS PLAYER */
 function play(url){
+
+    if(!url) return;
 
     if(hls) hls.destroy();
 
     hls = new Hls({
-        enableWorker:true,
-        lowLatencyMode:true,
-        backBufferLength:30
+        enableWorker: true,
+        lowLatencyMode: true,
+        liveSyncDuration: 1,
+        liveMaxLatencyDuration: 3,
+        maxBufferLength: 10,
+        backBufferLength: 0
     });
 
     hls.loadSource(url);
@@ -166,6 +156,34 @@ function play(url){
         video.play().catch(()=>{});
     });
 }
+
+/* SOUND FIX (tap to unmute) */
+video.addEventListener("click", ()=>{
+    video.muted = false;
+});
+
+/* CHANNELS */
+const channels = [
+
+/* MAIN */
+{name:"T Sports", group:"FIFA", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
+{name:"BTV National", group:"MAIN", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8"},
+{name:"BTV News", group:"MAIN", url:"https://tvsen6.aynaott.com/BTVNews/index.m3u8"},
+
+/* BD */
+{name:"Somoy TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8"},
+{name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8"},
+{name:"Jamuna TV", group:"BD", url:"https://tvsen6.aynaott.com/jamunatv/index.m3u8"},
+{name:"Ekushey TV", group:"BD", url:"https://ekusheyserver.com/etvlivesn.m3u8"},
+{name:"Independent TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/1704.m3u8"},
+
+/* IND */
+{name:"Star Plus", group:"IND", url:""},
+{name:"Sony TV", group:"IND", url:""},
+
+/* FIFA */
+{name:"Gazi TV", group:"FIFA", url:"https://tvsen5.aynaott.com/Ravc7gPCZpxk/index.m3u8"}
+];
 
 /* RENDER */
 function render(data){
@@ -183,32 +201,3 @@ function render(data){
 
 /* FILTER */
 function show(group){
-
-    if(group === "ALL"){
-        render(channels);
-        return;
-    }
-
-    let filtered = channels.filter(ch => ch.group === group);
-    render(filtered);
-}
-
-/* SEARCH */
-document.getElementById("search").addEventListener("input",(e)=>{
-    let val = e.target.value.toLowerCase();
-
-    let filtered = channels.filter(ch =>
-        ch.name.toLowerCase().includes(val)
-    );
-
-    render(filtered);
-});
-
-/* INIT */
-show("ALL");
-play(channels[0].url);
-
-</script>
-
-</body>
-</html>
