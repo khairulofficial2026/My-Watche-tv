@@ -13,19 +13,27 @@ body{
     font-family:Arial;
 }
 
-/* HEADER */
+/* HEADER (FIXED) */
 header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:10000;
+
     padding:12px;
     text-align:center;
     font-size:20px;
     font-weight:bold;
+
     background:linear-gradient(90deg,#e50914,#111);
+    color:white;
 }
 
-/* FIXED PLAYER */
+/* PLAYER */
 .player{
     position:fixed;
-    top:0;
+    top:50px;
     left:0;
     width:100%;
     aspect-ratio:16/9;
@@ -38,12 +46,12 @@ video{
     height:100%;
 }
 
-/* PUSH CONTENT */
+/* CONTENT PUSH */
 .container{
-    padding-top:56.25vw;
+    padding-top:calc(56.25vw + 60px);
 }
 
-/* CATEGORY BAR */
+/* CATEGORY */
 .categories{
     display:flex;
     gap:8px;
@@ -106,7 +114,7 @@ video{
 <header>🎬 Signature IPTV Live</header>
 
 <div class="player">
-    <video id="video" controls autoplay playsinline></video>
+    <video id="video" controls autoplay muted playsinline></video>
 </div>
 
 <div class="container">
@@ -125,7 +133,6 @@ video{
     <input type="text" id="search" placeholder="Search channel...">
 </div>
 
-<!-- CHANNEL LIST -->
 <div class="channels" id="list"></div>
 
 </div>
@@ -137,31 +144,42 @@ video{
 const video = document.getElementById("video");
 let hls;
 
-/* FAST PLAYER */
+/* PLAY FUNCTION (FIXED) */
 function play(url){
 
     if(!url) return;
 
     if(hls) hls.destroy();
 
-    hls = new Hls({
-        enableWorker:true,
-        lowLatencyMode:true,
-        liveSyncDuration:1,
-        liveMaxLatencyDuration:3,
-        maxBufferLength:10,
-        backBufferLength:0
-    });
+    if (Hls.isSupported()) {
 
-    hls.loadSource(url);
-    hls.attachMedia(video);
+        hls = new Hls({
+            enableWorker:true,
+            lowLatencyMode:true,
+            backBufferLength:0
+        });
 
-    hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
+        hls.loadSource(url);
+
+        hls.on(Hls.Events.ERROR, function (event, data) {
+            console.log("HLS ERROR:", data);
+        });
+
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, ()=>{
+            video.muted = true;
+            video.play().catch(()=>{});
+        });
+
+    } else {
+        video.src = url;
+        video.muted = true;
         video.play().catch(()=>{});
-    });
+    }
 }
 
-/* SOUND ENABLE ON CLICK */
+/* SOUND ON CLICK */
 video.addEventListener("click", ()=>{
     video.muted = false;
 });
@@ -179,15 +197,13 @@ const channels = [
 {name:"Channel 24", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8"},
 {name:"Jamuna TV", group:"BD", url:"https://tvsen6.aynaott.com/jamunatv/index.m3u8"},
 {name:"Ekushey TV", group:"BD", url:"https://ekusheyserver.com/etvlivesn.m3u8"},
-{name:"Independent TV", group:"BD", url:"https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/1704.m3u8"},
 
 /* IND */
-{name:"Star Plus", group:"IND", url:""},
 {name:"Sony TV", group:"IND", url:""},
+{name:"Star Plus", group:"IND", url:""},
 
-/* FIFA WC */
-{name:"T Sports HD", group:"FIFA", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"},
-{name:"Gazi TV", group:"FIFA", url:"https://tvsen5.aynaott.com/Ravc7gPCZpxk/index.m3u8"}
+/* FIFA */
+{name:"T Sports HD", group:"FIFA", url:"https://tvsen7.aynaott.com/tsportsfhd/index.m3u8"}
 
 ];
 
@@ -213,7 +229,7 @@ function show(group){
         return;
     }
 
-    let filtered = channels.filter(ch => ch.group === group);
+    const filtered = channels.filter(ch => ch.group === group);
     render(filtered);
 }
 
